@@ -22,14 +22,27 @@ export interface MedicalReport {
   type: 'BLOOD' | 'IMAGING' | 'PRESCRIPTION' | 'URINE';
   markers: Biomarker[];
   summary?: string;
+  fileUrl?: string;
 }
 
 export interface UserProfile {
   abhaId: string;
   name: string;
   age: number;
+  dob: string;
+  gender: 'MALE' | 'FEMALE' | 'OTHER';
   bloodGroup: string;
+  weight: number;
+  height: number;
+  isSmoker: boolean;
+  chronicConditions: string[];
   allergies: string[];
+  profilePic?: string;
+}
+
+export interface Nominee {
+  name: string;
+  relationship: string;
 }
 
 export interface InsurancePolicy {
@@ -39,8 +52,14 @@ export interface InsurancePolicy {
   policyNumber: string;
   sumInsured: number;
   renewalDate: string;
+  premiumAmount: number;
   status: 'ACTIVE' | 'LAPSED' | 'PENDING';
-  nominees?: string[];
+  nextPremiumDate: string;
+  benefitsUsed: {
+    freeCheckup: boolean;
+    opdUsed: number;
+  };
+  nominees?: Nominee[];
   coverageDetails?: {
     cashless: boolean;
     noClaimBonus: number;
