@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { MedicalReport, HealthStatus } from "../types";
+import { MedicalReport, EnvironmentData, ChronicLog } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
@@ -61,13 +61,20 @@ export const shredMedicalReport = async (imageBase64: string): Promise<MedicalRe
   }
 };
 
-export const getGuardianBrief = async (history: MedicalReport[]): Promise<string> => {
+export const getGuardianBrief = async (
+  history: MedicalReport[], 
+  env?: EnvironmentData, 
+  logs?: ChronicLog[]
+): Promise<string> => {
   try {
+    const envString = env ? `Current Environment: AQI ${env.aqi}, Temp ${env.temp}C, Humidity ${env.humidity}%.` : '';
+    const logsString = logs ? `Recent Symptom Logs: ${JSON.stringify(logs.slice(-5))}` : '';
+    
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
-      contents: `Analyze this longitudinal health history and provide a high-end, concise "Sentinel" brief. Look for multi-year trends, potential drug conflicts, and proactive suggestions. History: ${JSON.stringify(history)}`,
+      contents: `Analyze this longitudinal health history and environmental data to provide a high-end, concise "Sentinel" brief. Look for correlations between environment and symptoms. History: ${JSON.stringify(history)}. ${envString} ${logsString}`,
       config: {
-        systemInstruction: "You are the Medical Sentinel, a sophisticated proactive health guardian. Tone: Clinical, authoritative, efficient. Use markdown.",
+        systemInstruction: "You are the Medical Sentinel, a sophisticated proactive health guardian. Tone: Clinical, authoritative, efficient. Specifically look for environmental triggers based on the user's location and history. Use markdown.",
       }
     });
     return response.text || "No insights detected.";

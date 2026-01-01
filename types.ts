@@ -25,6 +25,30 @@ export interface MedicalReport {
   fileUrl?: string;
 }
 
+export interface GenomicMarker {
+  trait: string;
+  impact: 'POSITIVE' | 'NEUTRAL' | 'NEGATIVE';
+  description: string;
+  recommendation: string;
+}
+
+export interface EnvironmentData {
+  aqi: number;
+  temp: number;
+  humidity: number;
+  mainPollutant: string;
+  timestamp: string;
+  location: string;
+}
+
+export interface ChronicLog {
+  id: string;
+  symptom: string;
+  severity: 1 | 2 | 3 | 4 | 5;
+  timestamp: string;
+  envContext?: Partial<EnvironmentData>;
+}
+
 export interface UserProfile {
   abhaId: string;
   name: string;
@@ -38,6 +62,9 @@ export interface UserProfile {
   chronicConditions: string[];
   allergies: string[];
   profilePic?: string;
+  longevityScore?: number;
+  genomicProfile?: GenomicMarker[];
+  chronicLogs?: ChronicLog[];
 }
 
 export interface Nominee {
@@ -65,4 +92,12 @@ export interface InsurancePolicy {
     noClaimBonus: number;
     roomRentLimit: string;
   };
+}
+
+export interface ConciergeMessage {
+  id: string;
+  sender: 'USER' | 'QUARTERMASTER';
+  text: string;
+  timestamp: string;
+  status?: 'SENT' | 'DELIVERED' | 'READ';
 }

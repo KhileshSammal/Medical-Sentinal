@@ -2,6 +2,7 @@
   "name": "Medical Sentinel",
   "description": "A high-end proactive health guardian blending Apple Health precision with Linear's performance aesthetic. Built for the sovereign Indian citizen of 2026.",
   "requestFramePermissions": [
-    "camera"
+    "camera",
+    "geolocation"
   ]
 }
