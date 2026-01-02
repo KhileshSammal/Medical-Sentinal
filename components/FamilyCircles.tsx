@@ -6,7 +6,8 @@ import { HealthStatus } from '../types';
 
 const FamilyCircles: React.FC = () => {
   const family = [
-    { name: 'Suman Sammal', relation: 'Mother', status: HealthStatus.OPTIMAL, age: 58, score: 84, lastUpdate: '14 mins ago' },
+    { name: 'ABC', relation: 'Mother', status: HealthStatus.OPTIMAL, age: 58, score: 84, lastUpdate: '14 mins ago' },
+    { name: 'XYZ', relation: 'Father', status: HealthStatus.STABLE, age: 62, score: 76, lastUpdate: '1 hour ago' },
     { name: 'Rakesh Sammal', relation: 'Brother', status: HealthStatus.STABLE, age: 31, score: 79, lastUpdate: '2 hours ago' },
   ];
 
@@ -58,7 +59,7 @@ const FamilyCircles: React.FC = () => {
                       </div>
 
                       <div className="flex items-center gap-2 pt-2 text-[10px] font-bold text-neutral-500 uppercase">
-                         <MapPin className="w-3 h-3" /> Location Secured: Sector 45, Gurgaon
+                         <MapPin className="w-3 h-3" /> Location Secured
                       </div>
                    </div>
                    <ChevronRight className="w-6 h-6 text-neutral-800 group-hover:text-white transition-all transform group-hover:translate-x-2" />
@@ -74,23 +75,18 @@ const FamilyCircles: React.FC = () => {
                  <h4 className="text-sm font-bold uppercase tracking-widest text-white">Safety Protocol</h4>
               </div>
               <p className="text-xs text-neutral-400 leading-relaxed mb-6">
-                 "Priority 1" alerts are enabled for your Mother's Circle. 
+                 "Priority 1" alerts are enabled for your Inner Circle. 
                  Any shift in cardiac parameters will trigger an immediate Quartermaster intervention.
               </p>
               <div className="p-4 bg-black/20 rounded-2xl border border-white/5">
                  <div className="flex items-center gap-2 text-[10px] font-bold text-amber-500 mb-2">
-                    <AlertCircle className="w-3.5 h-3.5" /> EMERGENY CONTACTS
+                    <AlertCircle className="w-3.5 h-3.5" /> EMERGENCY CONTACTS
                  </div>
                  <div className="text-xs text-white space-y-2">
                     <p className="flex justify-between"><span>Max Healthcare</span> <span className="text-neutral-500">Gurgaon</span></p>
                     <p className="flex justify-between"><span>Quartermaster Team</span> <span className="text-neutral-500">24/7 Live</span></p>
                  </div>
               </div>
-           </div>
-
-           <div className="glass p-8 rounded-[2.5rem] border-white/10 bg-white/[0.01]">
-              <h4 className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-4">Pending Requests</h4>
-              <p className="text-[10px] text-neutral-500 leading-relaxed italic">No incoming trust requests.</p>
            </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Shield, Heart, Umbrella, ChevronRight, Zap, AlertCircle, Plus, X, Calendar, Hash, Building2, Wallet, PackageOpen, TrendingUp, Info, BellRing, Gift, RefreshCw, Users, UserPlus, Trash2 } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Shield, Heart, Umbrella, ChevronRight, Zap, AlertCircle, Plus, X, Calendar, Hash, Building2, Wallet, PackageOpen, TrendingUp, Info, BellRing, Gift, RefreshCw, Users, UserPlus, Trash2, Clock } from 'lucide-react';
 import { InsurancePolicy, Nominee } from '../types';
 
 const InsuranceVault: React.FC = () => {
@@ -14,10 +14,10 @@ const InsuranceVault: React.FC = () => {
       type: 'HEALTH',
       policyNumber: 'HE-9022-8812-X',
       sumInsured: 5000000,
-      renewalDate: '2026-08-15',
+      renewalDate: '2025-06-15', // Set to a near future date for demo
       premiumAmount: 12400,
       status: 'ACTIVE',
-      nextPremiumDate: '2025-08-15',
+      nextPremiumDate: '2025-06-15',
       benefitsUsed: {
         freeCheckup: false,
         opdUsed: 0
@@ -35,7 +35,7 @@ const InsuranceVault: React.FC = () => {
       type: 'TERM_LIFE',
       policyNumber: 'TAIA-TERM-551',
       sumInsured: 10000000,
-      renewalDate: '2026-11-20',
+      renewalDate: '2025-04-20', // Set to a very near future date for demo
       premiumAmount: 8500,
       status: 'ACTIVE',
       nextPremiumDate: '2025-05-10',
@@ -61,6 +61,18 @@ const InsuranceVault: React.FC = () => {
     premiumAmount: 0,
     nextPremiumDate: ''
   });
+
+  // Calculate renewal alerts
+  const renewalAlerts = useMemo(() => {
+    const today = new Date();
+    return policies.map(policy => {
+      const renewalDate = new Date(policy.renewalDate);
+      const diffTime = renewalDate.getTime() - today.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      return { ...policy, daysUntilRenewal: diffDays };
+    }).filter(p => p.daysUntilRenewal <= 60 && p.daysUntilRenewal >= -30) // Show alerts for upcoming 60 days or recently lapsed (last 30 days)
+    .sort((a, b) => a.daysUntilRenewal - b.daysUntilRenewal);
+  }, [policies]);
 
   const addNomineeField = () => {
     setNomineesInput([...nomineesInput, { name: '', relationship: '' }]);
@@ -202,11 +214,11 @@ const InsuranceVault: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Premium Date</label>
+                  <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest ml-1">Renewal Date</label>
                   <input 
                     type="date"
                     className="w-full bg-white/5 border border-white/10 rounded-xl py-2 px-3 text-sm text-white outline-none"
-                    onChange={(e) => setNewPolicy({...newPolicy, nextPremiumDate: e.target.value})}
+                    onChange={(e) => setNewPolicy({...newPolicy, renewalDate: e.target.value})}
                   />
                 </div>
               </div>
@@ -249,96 +261,140 @@ const InsuranceVault: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div className="lg:col-span-8 space-y-6">
-          {/* Quick Concierge Notifications */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-             <div className="glass p-5 rounded-3xl border-amber-500/20 bg-amber-500/5 flex items-start gap-4">
-                <div className="p-3 bg-amber-500/20 rounded-2xl text-amber-500">
-                  <BellRing className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-white mb-1">Premium Due</h4>
-                  <p className="text-xs text-neutral-400">₹8,500 due in 12 days for TATA AIA Policy.</p>
-                  <button className="mt-2 text-[10px] font-bold text-amber-500 uppercase tracking-widest underline">Quick Pay</button>
-                </div>
-             </div>
-             <div className="glass p-5 rounded-3xl border-lime-500/20 bg-lime-500/5 flex items-start gap-4">
-                <div className="p-3 bg-lime-500/20 rounded-2xl text-lime-500">
-                  <Gift className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-white mb-1">Annual Checkup</h4>
-                  <p className="text-xs text-neutral-400">Complimentary 64-parameter checkup available.</p>
-                  <button className="mt-2 text-[10px] font-bold text-lime-500 uppercase tracking-widest underline">Book Home Collection</button>
-                </div>
+          {/* Renewal & Concierge Alerts */}
+          <div className="space-y-4">
+             <h3 className="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.3em] px-2 flex items-center gap-2">
+               <BellRing className="w-3 h-3 text-indigo-400" /> Sentinel Alerts
+             </h3>
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               {renewalAlerts.length > 0 ? (
+                 renewalAlerts.map(alert => (
+                   <div key={`alert-${alert.id}`} className={`glass p-5 rounded-3xl border-l-4 flex items-start gap-4 transition-all hover:translate-x-1 ${
+                     alert.daysUntilRenewal <= 15 ? 'border-red-500 bg-red-500/5' : 
+                     alert.daysUntilRenewal <= 30 ? 'border-amber-500 bg-amber-500/5' : 'border-indigo-500 bg-indigo-500/5'
+                   }`}>
+                      <div className={`p-3 rounded-2xl ${
+                        alert.daysUntilRenewal <= 15 ? 'bg-red-500/20 text-red-400' : 
+                        alert.daysUntilRenewal <= 30 ? 'bg-amber-500/20 text-amber-400' : 'bg-indigo-500/20 text-indigo-400'
+                      }`}>
+                        <Clock className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="text-sm font-bold text-white truncate">{alert.provider} Renewal</h4>
+                          {alert.daysUntilRenewal < 0 ? (
+                            <span className="px-1.5 py-0.5 bg-red-600 text-white text-[8px] font-black rounded uppercase">LAPSED</span>
+                          ) : alert.daysUntilRenewal <= 7 ? (
+                            <span className="px-1.5 py-0.5 bg-red-600 text-white text-[8px] font-black rounded uppercase animate-pulse">URGENT</span>
+                          ) : null}
+                        </div>
+                        <p className="text-xs text-neutral-400 leading-relaxed">
+                          {alert.daysUntilRenewal < 0 
+                            ? `Policy expired ${Math.abs(alert.daysUntilRenewal)} days ago. Immediate action required.` 
+                            : alert.daysUntilRenewal === 0 
+                              ? "Policy expires TODAY. Secure your coverage now." 
+                              : `Expires in ${alert.daysUntilRenewal} days (${alert.renewalDate}).`}
+                        </p>
+                        <button className={`mt-3 text-[10px] font-bold uppercase tracking-widest flex items-center gap-1 transition-all hover:gap-2 ${
+                          alert.daysUntilRenewal <= 15 ? 'text-red-400' : 'text-indigo-400'
+                        }`}>
+                          Renew Now <ChevronRight className="w-3 h-3" />
+                        </button>
+                      </div>
+                   </div>
+                 ))
+               ) : (
+                 <div className="col-span-2 glass p-6 rounded-3xl border-white/5 flex flex-col items-center justify-center text-center opacity-40">
+                   <Shield className="w-8 h-8 text-neutral-500 mb-2" />
+                   <p className="text-xs text-neutral-500 font-bold uppercase tracking-widest">No Immediate Renewal Risks</p>
+                 </div>
+               )}
+               
+               {/* Fixed benefits / marketing alert if no renewal alerts */}
+               {renewalAlerts.length < 2 && (
+                 <div className="glass p-5 rounded-3xl border-lime-500/20 bg-lime-500/5 flex items-start gap-4">
+                    <div className="p-3 bg-lime-500/20 rounded-2xl text-lime-500">
+                      <Gift className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white mb-1">Annual Wellness</h4>
+                      <p className="text-xs text-neutral-400">Complimentary 64-parameter checkup available via HDFC ERGO.</p>
+                      <button className="mt-2 text-[10px] font-bold text-lime-500 uppercase tracking-widest underline">Book Home Collection</button>
+                    </div>
+                 </div>
+               )}
              </div>
           </div>
 
-          {activePolicies.map(policy => (
-            <div key={policy.id} className="glass rounded-[2.5rem] border-white/10 overflow-hidden relative group hover:border-white/20 transition-all">
-               <div className="p-8">
-                 <div className="flex justify-between items-start mb-8">
-                   <div className="flex items-center gap-4">
-                     <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
-                        {policy.type === 'HEALTH' ? <Heart className="w-7 h-7" /> : <Umbrella className="w-7 h-7" />}
+          <div className="space-y-4">
+            <h3 className="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.3em] px-2">Synced Policies</h3>
+            {activePolicies.map(policy => (
+              <div key={policy.id} className="glass rounded-[2.5rem] border-white/10 overflow-hidden relative group hover:border-white/20 transition-all">
+                 <div className="p-8">
+                   <div className="flex justify-between items-start mb-8">
+                     <div className="flex items-center gap-4">
+                       <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-indigo-400">
+                          {policy.type === 'HEALTH' ? <Heart className="w-7 h-7" /> : <Umbrella className="w-7 h-7" />}
+                       </div>
+                       <div>
+                          <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Active Protection</div>
+                          <h3 className="text-2xl font-bold text-white">{policy.provider} Sentinel</h3>
+                       </div>
                      </div>
-                     <div>
-                        <div className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mb-1">Active Protection</div>
-                        <h3 className="text-2xl font-bold text-white">{policy.provider} Sentinel</h3>
+                     <div className="text-right">
+                       <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Sum Insured</div>
+                       <div className="text-3xl font-extrabold text-white">₹{(policy.sumInsured / 100000).toFixed(0)} L</div>
                      </div>
                    </div>
-                   <div className="text-right">
-                     <div className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Sum Insured</div>
-                     <div className="text-3xl font-extrabold text-white">₹{(policy.sumInsured / 100000).toFixed(0)} L</div>
-                   </div>
-                 </div>
 
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 py-6 border-y border-white/5">
-                    <div>
-                      <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Policy No.</div>
-                      <div className="text-sm font-mono font-bold text-neutral-300">{policy.policyNumber}</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Next Premium</div>
-                      <div className="text-sm font-bold text-white">{policy.nextPremiumDate}</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1">NCB Bonus</div>
-                      <div className="text-sm font-bold text-lime-400">₹5.5 L Accrued</div>
-                    </div>
-                    <div>
-                      <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Status</div>
-                      <div className="text-sm font-bold text-indigo-400 uppercase tracking-wider">{policy.status}</div>
-                    </div>
-                 </div>
-
-                 {policy.nominees && policy.nominees.length > 0 && (
-                   <div className="mb-8 p-4 bg-white/5 rounded-2xl border border-white/10">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Users className="w-4 h-4 text-neutral-500" />
-                        <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Nominees</span>
+                   <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-8 py-6 border-y border-white/5">
+                      <div>
+                        <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Policy No.</div>
+                        <div className="text-sm font-mono font-bold text-neutral-300">{policy.policyNumber}</div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {policy.nominees.map((nominee, i) => (
-                          <div key={i} className="flex justify-between items-center border-b border-white/5 pb-2 last:border-0 last:pb-0">
-                            <span className="text-sm font-medium text-white">{nominee.name}</span>
-                            <span className="text-[10px] font-bold text-neutral-600 uppercase">{nominee.relationship}</span>
-                          </div>
-                        ))}
+                      <div>
+                        <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Renewal Date</div>
+                        <div className="text-sm font-bold text-white">{policy.renewalDate}</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1">NCB Bonus</div>
+                        <div className="text-sm font-bold text-lime-400">₹{(policy.coverageDetails?.noClaimBonus ? policy.coverageDetails.noClaimBonus / 100000 : 0).toFixed(1)} L</div>
+                      </div>
+                      <div>
+                        <div className="text-[10px] font-bold text-neutral-500 uppercase mb-1">Status</div>
+                        <div className="text-sm font-bold text-indigo-400 uppercase tracking-wider">{policy.status}</div>
                       </div>
                    </div>
-                 )}
 
-                 <div className="flex gap-4">
-                    <button className="flex-1 py-3 glass border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-600/10 transition-colors">
-                      Network Hospitals
-                    </button>
-                    <button className="flex-1 py-3 glass border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-600/10 transition-colors">
-                      Policy Dashboard
-                    </button>
+                   {policy.nominees && policy.nominees.length > 0 && (
+                     <div className="mb-8 p-4 bg-white/5 rounded-2xl border border-white/10">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Users className="w-4 h-4 text-neutral-500" />
+                          <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">Nominees</span>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          {policy.nominees.map((nominee, i) => (
+                            <div key={i} className="flex justify-between items-center border-b border-white/5 pb-2 last:border-0 last:pb-0">
+                              <span className="text-sm font-medium text-white">{nominee.name}</span>
+                              <span className="text-[10px] font-bold text-neutral-600 uppercase">{nominee.relationship}</span>
+                            </div>
+                          ))}
+                        </div>
+                     </div>
+                   )}
+
+                   <div className="flex gap-4">
+                      <button className="flex-1 py-3 glass border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-600/10 transition-colors">
+                        Network Hospitals
+                      </button>
+                      <button className="flex-1 py-3 glass border-white/10 rounded-2xl text-[10px] font-bold uppercase tracking-widest hover:bg-indigo-600/10 transition-colors">
+                        Policy Dashboard
+                      </button>
+                   </div>
                  </div>
-               </div>
-            </div>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="lg:col-span-4 space-y-6">

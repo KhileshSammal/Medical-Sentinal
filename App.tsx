@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, Shield, Activity, Users, Settings, Bell, Zap, Menu, ShieldCheck, User, FileText, ChevronRight, X, HeartPulse, MessageSquare, Dna, CloudRain, Thermometer, Wind, AlertCircle, Sparkles } from 'lucide-react';
+import { LayoutDashboard, Shield, Activity, Users, Settings, Bell, Zap, Menu, ShieldCheck, User, FileText, ChevronRight, X, HeartPulse, MessageSquare, Dna, CloudRain, Thermometer, Wind, AlertCircle, Sparkles, Stethoscope, Calendar, Utensils, Eye } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import CommandBar from './components/CommandBar';
 import HealthAura from './components/HealthAura';
@@ -13,12 +13,14 @@ import Concierge from './components/Concierge';
 import Longevity from './components/Longevity';
 import Guardian from './components/Guardian';
 import FamilyCircles from './components/FamilyCircles';
+import FoodScanner from './components/FoodScanner';
+import DiagnosticVision from './components/DiagnosticVision';
 import { MedicalReport, HealthStatus, EnvironmentData, ChronicLog } from './types';
 import { getGuardianBrief } from './services/geminiService';
 import { getEnvironmentData, checkEnvironmentalCorrelations } from './services/environmentService';
 
 const App: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'vault' | 'guardian' | 'family' | 'insurance' | 'profile' | 'concierge' | 'longevity'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'vault' | 'guardian' | 'family' | 'insurance' | 'foodScanner' | 'profile' | 'concierge' | 'longevity' | 'vision'>('overview');
   const [reports, setReports] = useState<MedicalReport[]>([]);
   const [envData, setEnvData] = useState<EnvironmentData | null>(null);
   const [guardianBrief, setGuardianBrief] = useState<string>('Initializing Sentinel protocol...');
@@ -65,10 +67,12 @@ const App: React.FC = () => {
       trends: 'guardian',
       family: 'family',
       insurance: 'insurance',
+      foodScanner: 'foodScanner',
       profile: 'profile',
       concierge: 'concierge',
       longevity: 'longevity',
-      guardian: 'guardian'
+      guardian: 'guardian',
+      vision: 'vision'
     };
     if (tabMap[id]) setActiveTab(tabMap[id]);
     setIsMobileMenuOpen(false);
@@ -108,7 +112,7 @@ const App: React.FC = () => {
   );
 
   return (
-    <div className={`flex h-screen overflow-hidden bg-[#0A0A0B] ${isHeartbeating ? 'animate-pulse' : ''}`}>
+    <div className={`flex h-screen overflow-hidden bg-[#0A0A0B]`}>
       <CommandBar onAction={handleAction} />
       {showClinicalBrief && <ClinicalBrief onClose={() => setShowClinicalBrief(false)} />}
       
@@ -130,6 +134,8 @@ const App: React.FC = () => {
         <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
           <NavItem id="overview" icon={LayoutDashboard} label="Sovereign Pulse" />
           <NavItem id="vault" icon={Zap} label="Medical Vault" />
+          <NavItem id="vision" icon={Eye} label="Diagnostic Vision" premium />
+          <NavItem id="foodScanner" icon={Utensils} label="Food Scanner" premium />
           <NavItem id="insurance" icon={ShieldCheck} label="Insurance" />
           <NavItem id="longevity" icon={Dna} label="DNA Blueprint" premium />
           <NavItem id="concierge" icon={MessageSquare} label="Quartermaster" premium />
@@ -184,11 +190,11 @@ const App: React.FC = () => {
               onClick={() => setActiveTab('concierge')}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600/10 border border-indigo-500/20 rounded-lg text-[9px] font-bold uppercase tracking-wider text-indigo-400 group"
             >
-              <MessageSquare className="w-3 h-3 group-hover:scale-110" /> <span className="hidden xs:inline">Quartermaster</span>
+              <MessageSquare className="w-3 h-3" /> <span className="hidden xs:inline">Quartermaster</span>
             </button>
             <button className="relative p-2 text-neutral-400 hover:text-white">
               <Bell className="w-5 h-5" />
-              <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-indigo-500 rounded-full animate-ping" />
+              {reports.length > 0 && <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 bg-indigo-500 rounded-full" />}
             </button>
           </div>
         </header>
@@ -200,7 +206,7 @@ const App: React.FC = () => {
                 {/* Environmental Pulse Widget */}
                 {envData && (
                   <section className="glass p-6 rounded-[2rem] border-white/10 relative overflow-hidden group">
-                     <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
+                     <div className="absolute top-0 right-0 p-4 opacity-10">
                         <CloudRain className="w-8 h-8 text-indigo-400" />
                      </div>
                      <h3 className="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.3em] mb-4">Environmental Pulse</h3>
@@ -219,7 +225,7 @@ const App: React.FC = () => {
                         </div>
                      </div>
                      {envAdvisory && (
-                       <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex gap-2 items-start animate-pulse">
+                       <div className="mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl flex gap-2 items-start">
                           <AlertCircle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
                           <p className="text-[9px] font-bold text-red-200 leading-relaxed uppercase tracking-tighter">
                             {envAdvisory}
@@ -228,6 +234,23 @@ const App: React.FC = () => {
                      )}
                   </section>
                 )}
+
+                {/* Doctor Tab in Overview */}
+                <section className="glass p-6 rounded-[2rem] border-indigo-500/20 bg-indigo-600/[0.02] flex items-center justify-between group hover:border-indigo-500/40 transition-all cursor-pointer">
+                   <div className="flex items-center gap-4">
+                      <div className="p-3 bg-indigo-600/10 rounded-2xl text-indigo-400">
+                         <Stethoscope className="w-6 h-6" />
+                      </div>
+                      <div>
+                         <div className="text-[8px] font-bold text-indigo-400 uppercase tracking-widest mb-0.5">Next Doctor Meeting</div>
+                         <div className="text-sm font-bold text-white tracking-tight">Dr. Sharma • Cardiology</div>
+                      </div>
+                   </div>
+                   <div className="text-right">
+                      <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-tighter">14 JUN</div>
+                      <div className="text-[9px] text-neutral-500 font-medium">04:30 PM</div>
+                   </div>
+                </section>
 
                 <section 
                   onClick={() => setShowClinicalBrief(true)}
@@ -257,7 +280,7 @@ const App: React.FC = () => {
                 {/* Shortened Guardian Sentinel Protocol Section */}
                 <section className="glass p-4 md:p-5 rounded-[1.5rem] md:rounded-[2rem] border-white/10 relative overflow-hidden bg-gradient-to-br from-indigo-500/[0.05] to-transparent flex items-center gap-4">
                   <div className="shrink-0 p-3 bg-indigo-600 rounded-2xl indigo-glow">
-                    <Sparkles className="w-5 h-5 text-white animate-pulse" />
+                    <Sparkles className="w-5 h-5 text-white" />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
@@ -287,7 +310,7 @@ const App: React.FC = () => {
                        <div className="px-2 py-0.5 bg-lime-500/10 text-lime-400 text-[8px] font-bold rounded uppercase">Concierge</div>
                     </div>
                     <h4 className="text-xs md:text-sm font-bold text-white mb-1 uppercase tracking-wider">Quartermaster Ready</h4>
-                    <p className="text-[11px] md:text-xs text-neutral-500 leading-relaxed">Senior Nurse Anjali is analyzing your last sleep cycle. Tap to chat.</p>
+                    <p className="text-[11px] md:text-xs text-neutral-500 leading-relaxed">Senior Nurse Anjali is analyzing your health trends. Tap to chat.</p>
                   </div>
                 </div>
 
@@ -315,7 +338,9 @@ const App: React.FC = () => {
           )}
 
           {activeTab === 'vault' && <Vault reports={reports} onReportAdded={(r) => setReports([r, ...reports])} />}
+          {activeTab === 'vision' && <DiagnosticVision />}
           {activeTab === 'insurance' && <InsuranceVault />}
+          {activeTab === 'foodScanner' && <FoodScanner userContext="Hypertension, Gluten Sensitivity, High Cholesterol" />}
           {activeTab === 'profile' && <Profile />}
           {activeTab === 'longevity' && <Longevity />}
           {activeTab === 'concierge' && <Concierge />}
@@ -328,8 +353,8 @@ const App: React.FC = () => {
       <nav className="fixed bottom-0 left-0 right-0 z-[50] glass border-t border-white/10 px-2 flex md:hidden bg-[#0A0A0B]/80 backdrop-blur-xl">
         <BottomTab id="overview" icon={LayoutDashboard} label="Pulse" />
         <BottomTab id="vault" icon={Zap} label="Vault" />
-        <BottomTab id="longevity" icon={Dna} label="DNA" />
-        <BottomTab id="guardian" icon={Activity} label="Guardian" />
+        <BottomTab id="vision" icon={Eye} label="Vision" />
+        <BottomTab id="foodScanner" icon={Utensils} label="Food" />
         <BottomTab id="profile" icon={User} label="Me" />
       </nav>
     </div>

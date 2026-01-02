@@ -21,7 +21,7 @@ const Guardian: React.FC = () => {
         </div>
         <div className="flex gap-2">
            <div className="px-4 py-2 glass rounded-xl border-indigo-500/20 text-[10px] font-bold text-indigo-400 uppercase tracking-widest flex items-center gap-2">
-              <Zap className="w-3 h-3 animate-pulse" /> Pulse Engine: Active
+              <Zap className="w-3 h-3" /> Pulse Engine: Active
            </div>
         </div>
       </div>
@@ -80,7 +80,7 @@ const Guardian: React.FC = () => {
               <div>
                 <p className="text-xs font-bold text-white uppercase tracking-wider">Guardian Insight</p>
                 <p className="text-xs text-neutral-500 mt-1 leading-relaxed">
-                  Your Vitamin D dropped 15% during Q1. Correlation detected with low sunlight exposure in Bengaluru East. 
+                  Your Vitamin D dropped 15% during Q1. Correlation detected with low sunlight exposure. 
                   <span className="text-indigo-400 ml-1">Protocol: Increase oral 60k IU frequency to 1x/week.</span>
                 </p>
               </div>
@@ -145,7 +145,7 @@ const Guardian: React.FC = () => {
                  <div className="relative pl-6 border-l border-amber-500/50">
                     <div className="absolute top-0 left-[-4.5px] w-2 h-2 rounded-full bg-amber-500" />
                     <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest">Priority 2: Sleep Cycle</p>
-                    <p className="text-xs text-neutral-400 mt-1 leading-relaxed">Deep sleep consistently below 45 mins. Correlates with 8PM blue-light exposure.</p>
+                    <p className="text-xs text-neutral-400 mt-1 leading-relaxed">Deep sleep consistently below 45 mins. Correlates with late-night blue-light exposure.</p>
                  </div>
                  <div className="relative pl-6 border-l border-indigo-500/50 opacity-40">
                     <div className="absolute top-0 left-[-4.5px] w-2 h-2 rounded-full bg-indigo-500" />

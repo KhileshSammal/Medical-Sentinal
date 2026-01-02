@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { User, Shield, Ruler, Weight, UserCircle, Activity, Save, Edit3, Camera, Calendar } from 'lucide-react';
+import { User, Shield, Ruler, Weight, UserCircle, Activity, Save, Edit3, Camera, Calendar, UserPlus } from 'lucide-react';
 import { UserProfile } from '../types';
 
 const Profile: React.FC = () => {
@@ -8,6 +8,8 @@ const Profile: React.FC = () => {
   const [profile, setProfile] = useState<UserProfile>({
     abhaId: '34-1122-3344',
     name: 'Khilesh Sammal',
+    motherName: 'ABC',
+    fatherName: 'XYZ',
     age: 27,
     dob: '1998-07-21',
     gender: 'MALE',
@@ -16,8 +18,11 @@ const Profile: React.FC = () => {
     height: 175,
     isSmoker: false,
     chronicConditions: ['None'],
-    allergies: ['Dust', 'Pollen']
+    allergies: ['Dust', 'Pollen'],
+    dietaryRestrictions: ['HYPERTENSIVE', 'GLUTEN_FREE']
   });
+
+  const bmi = (profile.weight / ((profile.height / 100) ** 2)).toFixed(1);
 
   const handleSave = () => {
     setIsEditing(false);
@@ -32,7 +37,7 @@ const Profile: React.FC = () => {
         </div>
         <button 
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
-          className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold tracking-widest uppercase text-xs transition-all indigo-glow hover:bg-indigo-500"
+          className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold tracking-widest uppercase text-xs transition-all hover:bg-indigo-500"
         >
           {isEditing ? <Save className="w-4 h-4" /> : <Edit3 className="w-4 h-4" />}
           {isEditing ? 'Save Profile' : 'Edit Profile'}
@@ -76,9 +81,9 @@ const Profile: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 text-neutral-400">
                 <Activity className="w-4 h-4" />
-                <span className="text-xs font-bold uppercase tracking-widest">Blood Group</span>
+                <span className="text-xs font-bold uppercase tracking-widest">Blood / BMI</span>
               </div>
-              <span className="text-sm font-bold text-indigo-400">{profile.bloodGroup}</span>
+              <span className="text-sm font-bold text-indigo-400">{profile.bloodGroup} • BMI {bmi}</span>
             </div>
           </div>
         </div>
@@ -92,34 +97,39 @@ const Profile: React.FC = () => {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
               <div className="space-y-4">
-                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Allergies</label>
+                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Parental Heritage</label>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-neutral-500 uppercase">Mother</span>
+                    <span className="text-white font-bold">{profile.motherName}</span>
+                  </div>
+                  <div className="flex justify-between text-xs">
+                    <span className="text-neutral-500 uppercase">Father</span>
+                    <span className="text-white font-bold">{profile.fatherName}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Allergies & Triggers</label>
                 <div className="flex flex-wrap gap-2">
                   {profile.allergies.map(a => (
                     <span key={a} className="px-3 py-1 bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] rounded-lg font-bold uppercase tracking-wider">
                       {a}
                     </span>
                   ))}
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Vitals Summary</label>
-                <div className="space-y-2">
-                   <div className="flex justify-between text-xs">
-                     <span className="text-neutral-500">BMI</span>
-                     <span className="text-white font-bold">23.5 (Healthy)</span>
-                   </div>
-                   <div className="flex justify-between text-xs">
-                     <span className="text-neutral-500">Last BP</span>
-                     <span className="text-white font-bold">120/80 mmHg</span>
-                   </div>
+                  {profile.dietaryRestrictions?.map(d => (
+                    <span key={d} className="px-3 py-1 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] rounded-lg font-bold uppercase tracking-wider">
+                      {d.replace('_', ' ')}
+                    </span>
+                  ))}
                 </div>
               </div>
 
               <div className="space-y-4 sm:col-span-2">
-                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Family History</label>
+                <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">Family Genetic Map</label>
                 <div className="p-4 glass rounded-2xl border-white/5 bg-white/[0.01]">
-                   <p className="text-xs text-neutral-400">No major hereditary risks detected based on connected Family Circles.</p>
+                   <p className="text-xs text-neutral-400">Risk mitigation active for biological parentage (Mother: {profile.motherName}, Father: {profile.fatherName}). Genetic markers for chronic triggers are synced with Food Scanner protocol.</p>
                 </div>
               </div>
             </div>

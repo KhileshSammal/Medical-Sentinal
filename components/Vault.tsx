@@ -1,8 +1,10 @@
 
 import React, { useRef, useState, useMemo } from 'react';
-import { FileText, Plus, Scan, ChevronRight, Loader2, Download, Filter, X, Calendar, Search as SearchIcon, Image as ImageIcon, FileUp } from 'lucide-react';
+import { FileText, Plus, Scan, ChevronRight, Loader2, Download, Filter, X, Calendar, Search as SearchIcon, Image as ImageIcon, FileUp, Share2 } from 'lucide-react';
 import { MedicalReport } from '../types';
 import { shredMedicalReport } from '../services/geminiService';
+import ReportVisualization from './ReportVisualization';
+import { downloadFHIR } from '../services/fhirService';
 
 interface VaultProps {
   reports: MedicalReport[];
@@ -13,6 +15,7 @@ const Vault: React.FC<VaultProps> = ({ reports, onReportAdded }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<MedicalReport | null>(null);
   
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('ALL');
@@ -49,7 +52,15 @@ const Vault: React.FC<VaultProps> = ({ reports, onReportAdded }) => {
   }, [reports, searchQuery, typeFilter, startDate, endDate]);
 
   return (
-    <div className="space-y-6 pb-4">
+    <div className="space-y-6 pb-4 relative">
+      {/* Detail Overlay */}
+      {selectedReport && (
+        <ReportVisualization 
+          report={selectedReport} 
+          onClose={() => setSelectedReport(null)} 
+        />
+      )}
+
       <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4">
         <div>
           <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-white">Medical Vault</h2>
@@ -155,7 +166,11 @@ const Vault: React.FC<VaultProps> = ({ reports, onReportAdded }) => {
           </div>
         ) : (
           filteredReports.map((report) => (
-            <div key={report.id} className="group glass p-4 md:p-6 rounded-[1.25rem] md:rounded-3xl border-white/10 flex items-center justify-between hover:bg-white/5 transition-all cursor-pointer active:scale-[0.98]">
+            <div 
+              key={report.id} 
+              onClick={() => setSelectedReport(report)}
+              className="group glass p-4 md:p-6 rounded-[1.25rem] md:rounded-3xl border-white/10 flex items-center justify-between hover:bg-white/5 transition-all cursor-pointer active:scale-[0.98]"
+            >
               <div className="flex items-center gap-4 md:gap-6 min-w-0">
                 <div className="w-10 h-10 md:w-12 md:h-12 bg-white/5 rounded-[0.75rem] md:rounded-2xl border border-white/10 flex items-center justify-center text-indigo-400 shrink-0">
                   <FileText className="w-5 h-5 md:w-6 md:h-6" />
@@ -171,7 +186,19 @@ const Vault: React.FC<VaultProps> = ({ reports, onReportAdded }) => {
                   </div>
                 </div>
               </div>
-              <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-neutral-700 group-hover:text-white transition-all transform group-hover:translate-x-1 shrink-0" />
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    downloadFHIR(report);
+                  }}
+                  className="p-2 glass border-white/5 rounded-lg text-neutral-600 hover:text-indigo-400 hover:border-indigo-500/30 transition-all opacity-0 group-hover:opacity-100 hidden sm:block"
+                  title="Export FHIR"
+                >
+                  <Download className="w-4 h-4" />
+                </button>
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 text-neutral-700 group-hover:text-white transition-all transform group-hover:translate-x-1 shrink-0" />
+              </div>
             </div>
           ))
         )}

@@ -52,6 +52,8 @@ export interface ChronicLog {
 export interface UserProfile {
   abhaId: string;
   name: string;
+  motherName?: string;
+  fatherName?: string;
   age: number;
   dob: string;
   gender: 'MALE' | 'FEMALE' | 'OTHER';
@@ -61,6 +63,7 @@ export interface UserProfile {
   isSmoker: boolean;
   chronicConditions: string[];
   allergies: string[];
+  dietaryRestrictions?: string[]; // e.g. "DIABETIC", "HYPERTENSIVE", "GLUTEN_FREE"
   profilePic?: string;
   longevityScore?: number;
   genomicProfile?: GenomicMarker[];
@@ -100,4 +103,32 @@ export interface ConciergeMessage {
   text: string;
   timestamp: string;
   status?: 'SENT' | 'DELIVERED' | 'READ';
+}
+
+export interface FoodScanResult {
+  id: string;
+  productName: string;
+  brand: string;
+  nutrition: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    sugar: number;
+    fat: number;
+    saturatedFat: number;
+    sodium: number;
+    fiber: number;
+    cholesterol: number;
+  };
+  ingredients: string[];
+  novaScore: 1 | 2 | 3 | 4;
+  healthGrade: 'A' | 'B' | 'C' | 'D' | 'E';
+  confidenceScore: number;
+  timestamp: string;
+  servingSize: string;
+  alerts: {
+    type: 'ALLERGEN' | 'HEALTH' | 'ADDITIVE';
+    message: string;
+    severity: 'LOW' | 'MEDIUM' | 'HIGH';
+  }[];
 }

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Search, Command, Zap, FileText, Activity, Users, Shield, ShieldCheck } from 'lucide-react';
+import { Search, Command, Zap, FileText, Activity, Users, Shield, ShieldCheck, Eye } from 'lucide-react';
 
 interface CommandBarProps {
   onAction: (action: string) => void;
@@ -28,6 +28,7 @@ const CommandBar: React.FC<CommandBarProps> = ({ onAction }) => {
 
   const commands = [
     { id: 'scan', label: 'Shred New Report', icon: Zap, shortcut: 'S' },
+    { id: 'vision', label: 'Engage Diagnostic Vision', icon: Eye, shortcut: 'E' },
     { id: 'vault', label: 'Open Medical Vault', icon: FileText, shortcut: 'V' },
     { id: 'insurance', label: 'Insurance Portfolio', icon: ShieldCheck, shortcut: 'I' },
     { id: 'trends', label: 'Analyze Health Trends', icon: Activity, shortcut: 'T' },

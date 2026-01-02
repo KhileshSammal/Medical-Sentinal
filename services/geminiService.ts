@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { MedicalReport, EnvironmentData, ChronicLog } from "../types";
+import { MedicalReport, EnvironmentData, ChronicLog, FoodScanResult } from "../types";
 
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
 
@@ -27,6 +27,48 @@ const reportSchema = {
     }
   },
   required: ['labName', 'date', 'markers']
+};
+
+const foodScanSchema = {
+  type: Type.OBJECT,
+  properties: {
+    productName: { type: Type.STRING },
+    brand: { type: Type.STRING },
+    servingSize: { type: Type.STRING },
+    confidenceScore: { type: Type.NUMBER },
+    nutrition: {
+      type: Type.OBJECT,
+      properties: {
+        calories: { type: Type.NUMBER },
+        protein: { type: Type.NUMBER },
+        carbs: { type: Type.NUMBER },
+        sugar: { type: Type.NUMBER },
+        fat: { type: Type.NUMBER },
+        saturatedFat: { type: Type.NUMBER },
+        sodium: { type: Type.NUMBER },
+        fiber: { type: Type.NUMBER },
+        cholesterol: { type: Type.NUMBER }
+      }
+    },
+    ingredients: {
+      type: Type.ARRAY,
+      items: { type: Type.STRING }
+    },
+    novaScore: { type: Type.INTEGER, description: "1-4 (Ultra processed is 4)" },
+    healthGrade: { type: Type.STRING, enum: ['A', 'B', 'C', 'D', 'E'] },
+    alerts: {
+      type: Type.ARRAY,
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          type: { type: Type.STRING, enum: ['ALLERGEN', 'HEALTH', 'ADDITIVE'] },
+          message: { type: Type.STRING },
+          severity: { type: Type.STRING, enum: ['LOW', 'MEDIUM', 'HIGH'] }
+        }
+      }
+    }
+  },
+  required: ['productName', 'nutrition', 'ingredients', 'novaScore', 'healthGrade']
 };
 
 export const shredMedicalReport = async (imageBase64: string): Promise<MedicalReport | null> => {
@@ -58,6 +100,64 @@ export const shredMedicalReport = async (imageBase64: string): Promise<MedicalRe
   } catch (error) {
     console.error("OCR Error:", error);
     return null;
+  }
+};
+
+export const analyzeFoodLabel = async (imageBase64: string, userContext?: string): Promise<FoodScanResult | null> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: [
+        {
+          parts: [
+            { text: `Analyze this food nutrition label. Extract macronutrients and ingredients. Categorize processing level (NOVA). Provide health grades. Specifically look for allergens or chronic condition conflicts based on this context: ${userContext || 'None'}. Output valid JSON.` },
+            { inlineData: { data: imageBase64.split(',')[1], mimeType: 'image/jpeg' } }
+          ]
+        }
+      ],
+      config: {
+        responseMimeType: "application/json",
+        responseSchema: foodScanSchema
+      }
+    });
+
+    if (response.text) {
+      const data = JSON.parse(response.text);
+      return {
+        ...data,
+        id: Math.random().toString(36).substr(2, 9),
+        timestamp: new Date().toISOString()
+      } as FoodScanResult;
+    }
+    return null;
+  } catch (error) {
+    console.error("Food Label Scan Error:", error);
+    return null;
+  }
+};
+
+/**
+ * High-fidelity image analysis using gemini-3-pro-preview.
+ * Can be used for skin analysis, pill identification, or general medical photo queries.
+ */
+export const analyzeDiagnosticImage = async (imageBase64: string, prompt: string): Promise<string> => {
+  try {
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-pro-preview',
+      contents: [
+        {
+          parts: [
+            { text: `You are the Medical Sentinel Vision system. Analyze this image carefully based on the following user prompt: "${prompt}". Provide a clinical-grade but accessible brief. Include observations, potential risks, and recommended actions. ALWAYS include a disclaimer that you are an AI and not a substitute for professional medical advice. Use high-end, precise terminology.` },
+            { inlineData: { data: imageBase64.split(',')[1], mimeType: 'image/jpeg' } }
+          ]
+        }
+      ],
+    });
+
+    return response.text || "Diagnostic analysis failed to generate a response.";
+  } catch (error) {
+    console.error("Diagnostic Vision Error:", error);
+    return "The Sentinel Vision system encountered an error during neural processing.";
   }
 };
 
