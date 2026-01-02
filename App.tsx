@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, Shield, Activity, Users, Settings, Bell, Zap, Menu, ShieldCheck, User, FileText, ChevronRight, X, HeartPulse, MessageSquare, Dna, CloudRain, Thermometer, Wind, AlertCircle, Sparkles } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Analytics } from '@vercel/analytics/react';
 import CommandBar from './components/CommandBar';
 import HealthAura from './components/HealthAura';
 import BodyMap from './components/BodyMap';
@@ -332,6 +333,8 @@ const App: React.FC = () => {
         <BottomTab id="guardian" icon={Activity} label="Guardian" />
         <BottomTab id="profile" icon={User} label="Me" />
       </nav>
+
+      <Analytics />
     </div>
   );
 };
