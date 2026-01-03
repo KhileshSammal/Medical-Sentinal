@@ -9,5 +9,7 @@ interface Process {
   env: ProcessEnv;
 }
 
-/* Redeclare the global process variable using the Process interface to avoid type mismatches and block-scope conflicts */
-declare var process: Process;
+// Fixed: Removed 'declare var process: Process;' because 'process' is already declared in the global scope 
+// (likely by Node.js types or the development environment) and cannot be redeclared. 
+// Interface merging for 'Process' and 'ProcessEnv' above ensures the existing 'process' variable 
+// has the correct type definitions.
