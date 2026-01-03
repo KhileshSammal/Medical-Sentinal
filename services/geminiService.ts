@@ -2,7 +2,8 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { MedicalReport, EnvironmentData, ChronicLog, FoodScanResult } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Always use process.env.API_KEY directly as a named parameter
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 const reportSchema = {
   type: Type.OBJECT,

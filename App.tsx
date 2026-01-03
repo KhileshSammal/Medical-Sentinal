@@ -101,12 +101,12 @@ const App: React.FC = () => {
   const BottomTab = ({ id, icon: Icon, label }: { id: typeof activeTab, icon: any, label: string }) => (
     <button
       onClick={() => setActiveTab(id)}
-      className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 transition-all ${
+      className={`flex flex-col items-center justify-center gap-1 flex-1 py-2 transition-all min-w-[60px] ${
         activeTab === id ? 'text-indigo-400' : 'text-neutral-500'
       }`}
     >
       <Icon className={`w-5 h-5 ${activeTab === id ? 'fill-indigo-400/10' : ''}`} />
-      <span className="text-[10px] font-bold uppercase tracking-tighter">{label}</span>
+      <span className="text-[9px] font-bold uppercase tracking-tighter">{label}</span>
       {activeTab === id && <div className="w-1 h-1 rounded-full bg-indigo-400 mt-0.5" />}
     </button>
   );
@@ -120,15 +120,20 @@ const App: React.FC = () => {
         <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
       )}
 
-      {/* Desktop Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-[70] transition-transform duration-300 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 ${isSidebarOpen ? 'w-64' : 'w-20'} h-full glass border-r border-white/10 flex flex-col hidden md:flex`}>
+      {/* Desktop & Mobile Sidebar */}
+      <aside className={`fixed inset-y-0 left-0 z-[70] transition-transform duration-300 transform ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0 ${isSidebarOpen ? 'w-64' : 'w-20'} h-full glass border-r border-white/10 flex flex-col ${isMobileMenuOpen ? 'flex' : 'hidden md:flex'}`}>
         <div className="p-6 flex items-center justify-between mb-6">
-          <button onClick={() => setActiveTab('overview')} className="flex items-center gap-3 group">
+          <button onClick={() => { setActiveTab('overview'); setIsMobileMenuOpen(false); }} className="flex items-center gap-3 group">
             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center indigo-glow transition-transform group-hover:scale-110">
               <Shield className="w-5 h-5 text-white" />
             </div>
-            {isSidebarOpen && <span className="font-bold tracking-tight text-white text-lg">SENTINEL</span>}
+            {(isSidebarOpen || isMobileMenuOpen) && <span className="font-bold tracking-tight text-white text-lg">SENTINEL</span>}
           </button>
+          {isMobileMenuOpen && (
+            <button onClick={() => setIsMobileMenuOpen(false)} className="md:hidden p-2 text-neutral-400">
+              <X className="w-6 h-6" />
+            </button>
+          )}
         </div>
 
         <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto">
@@ -146,13 +151,13 @@ const App: React.FC = () => {
 
         <div className="p-4 border-t border-white/10 space-y-2">
           <button 
-            onClick={() => setActiveTab('profile')}
+            onClick={() => { setActiveTab('profile'); setIsMobileMenuOpen(false); }}
             className="w-full glass p-3 rounded-xl border-white/10 flex items-center gap-3 mb-4 hover:bg-white/10 transition-colors text-left group"
           >
              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 border border-white/10 overflow-hidden shrink-0">
                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=KhileshSammal`} alt="Avatar" className="w-full h-full object-cover" />
              </div>
-             {isSidebarOpen && (
+             {(isSidebarOpen || isMobileMenuOpen) && (
                <div className="overflow-hidden">
                  <div className="text-[10px] font-bold text-white truncate uppercase tracking-wider">Khilesh Sammal</div>
                  <div className="text-[9px] text-neutral-500 truncate font-mono">BIO-AGE: 23.2Y</div>
@@ -163,14 +168,17 @@ const App: React.FC = () => {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-transparent relative pb-20 md:pb-0">
+      <main className="flex-1 overflow-y-auto bg-transparent relative pb-24 md:pb-0">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-indigo-600/5 blur-[120px] pointer-events-none" />
         
         <header className="sticky top-0 z-40 glass px-4 md:px-8 py-3 md:py-4 flex justify-between items-center border-b border-white/10">
           <div className="flex items-center gap-3">
-             <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center md:hidden shrink-0">
-                <Shield className="w-4 h-4 text-white" />
-             </div>
+             <button 
+               onClick={() => setIsMobileMenuOpen(true)}
+               className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center md:hidden shrink-0 active:scale-95 transition-transform"
+             >
+                <Menu className="w-4 h-4 text-white" />
+             </button>
              <h1 className="text-xs md:text-sm font-bold tracking-widest text-white uppercase opacity-70 truncate max-w-[150px]">
                {activeTab === 'overview' ? 'Sovereign Command' : activeTab === 'longevity' ? 'Longevity Protocol' : activeTab}
              </h1>
@@ -234,6 +242,18 @@ const App: React.FC = () => {
                      )}
                   </section>
                 )}
+
+                {/* Insurance Status Widget (Added for Mobile Visibility) */}
+                <section onClick={() => setActiveTab('insurance')} className="glass p-6 rounded-[2rem] border-indigo-500/20 bg-white/[0.01] cursor-pointer hover:bg-white/5 transition-all group">
+                   <div className="flex justify-between items-start mb-4">
+                      <div className="p-3 bg-indigo-600/10 rounded-2xl text-indigo-400 group-hover:scale-110 transition-transform">
+                         <ShieldCheck className="w-6 h-6" />
+                      </div>
+                      <span className="px-2 py-0.5 bg-lime-500/10 text-lime-400 text-[8px] font-black rounded uppercase tracking-widest">Active Protection</span>
+                   </div>
+                   <h3 className="text-sm font-bold text-white uppercase tracking-wider">Sovereign Protection</h3>
+                   <p className="text-[10px] text-neutral-500 mt-1 uppercase font-mono">₹50.0 L • HDFC ERGO HEALTH</p>
+                </section>
 
                 {/* Doctor Tab in Overview */}
                 <section className="glass p-6 rounded-[2rem] border-indigo-500/20 bg-indigo-600/[0.02] flex items-center justify-between group hover:border-indigo-500/40 transition-all cursor-pointer">
@@ -350,9 +370,10 @@ const App: React.FC = () => {
       </main>
 
       {/* Mobile Bottom Navigation Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-[50] glass border-t border-white/10 px-2 flex md:hidden bg-[#0A0A0B]/80 backdrop-blur-xl">
+      <nav className="fixed bottom-0 left-0 right-0 z-[50] glass border-t border-white/10 px-1 flex md:hidden bg-[#0A0A0B]/80 backdrop-blur-xl overflow-x-auto no-scrollbar">
         <BottomTab id="overview" icon={LayoutDashboard} label="Pulse" />
         <BottomTab id="vault" icon={Zap} label="Vault" />
+        <BottomTab id="insurance" icon={ShieldCheck} label="Insure" />
         <BottomTab id="vision" icon={Eye} label="Vision" />
         <BottomTab id="foodScanner" icon={Utensils} label="Food" />
         <BottomTab id="profile" icon={User} label="Me" />
