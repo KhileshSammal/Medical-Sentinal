@@ -136,10 +136,6 @@ export const analyzeFoodLabel = async (imageBase64: string, userContext?: string
   }
 };
 
-/**
- * High-fidelity image analysis using gemini-3-pro-preview.
- * Can be used for skin analysis, pill identification, or general medical photo queries.
- */
 export const analyzeDiagnosticImage = async (imageBase64: string, prompt: string): Promise<string> => {
   try {
     const response = await ai.models.generateContent({
